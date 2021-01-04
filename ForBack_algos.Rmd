@@ -1,0 +1,168 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+
+library(car)
+
+
+df<-data.frame(mtcars)
+y<-names(df)[1]
+x<-names(df)[2:length(df)]
+pvals<- vector()
+
+
+x_final <- ""
+j<-1
+thresh<-2
+
+#while(j<thresh){
+  for(i in x){
+    #print(i)
+    model<- lm(paste(y,"~",i,"-1"),data=df)
+    temp<-coef(summary(model))[,4]
+    
+    pvals[i]<-temp
+    
+    #print(pvals[i])
+    
+  }
+
+    idx_min_p <- which.min(pvals)
+    min_p_name <-names(pvals)[idx_min_p]
+    min_p <- pvals[idx_min_p]
+    print(pvals)
+  if(min_p < .05 && length(x)>=1){
+      #print(x)
+      x<- x[-idx_min_p]
+      #print(x)
+      x_final <- paste(min_p_name,x_final,sep="+")
+      #print(x_final)
+      pvals <- vector()
+      #next
+  }
+  #j<-thresh
+#}
+#print(x_final)
+```
+
+# T-test Forward Algorithm 
+
+Start out with a set of $p$ number of response variables and create $p$ models, each with only $1$ of the variables in the set. From the $p$ number of models choose the one that yields the smallest p-value in T-test for signifigance. Then add the variable $p_1$ to the model $M$. The next iteration of models will contain $y ~ p_1$, add all $p$ variables to this model and choose the model that gives you the smallest p-value for the corresponding variable $p_i$ 
+```{r}
+###WORKING VERSION
+library(car)
+
+df<-data.frame(mtcars)
+y<-names(df)[1]
+x<-names(df)[4:length(df)]
+pvals<- vector()
+x_final <- ""
+j<-1
+thresh<-2
+
+while(j<thresh){
+if(x_final == ""){
+for(i in x){
+    formula <- paste(i,x_final,sep="+")
+    formula <- paste(y,"~",formula,-1)
+    #print(formula)
+    model<- lm(formula = formula,data=df)
+    print(coef(summary(model)))
+
+    pvals[i] <- coef(summary(model))[,4]
+    print(pvals[i])
+    
+}
+    idx_min_p <- which.min(pvals)
+    min_p_name <-names(pvals)[idx_min_p]
+    min_p <- pvals[idx_min_p]
+    print(pvals)
+  if(min_p < .05 && length(x)>=1){
+      #print(x)
+      x<- x[-idx_min_p]
+      #print(x)
+      x_final <- paste(min_p_name,x_final,sep="+")
+      #print(x_final)
+      pvals <- vector()
+      next
+  }
+}else{  
+  for(i in x){
+    formula <- paste(i,x_final,sep="+")
+    formula <- paste(y,"~",formula,-1)
+    
+    model<- lm(formula = formula,data=df)
+    print(coef(summary(model)))
+
+    pvals[i] <- coef(summary(model))[,4][i]
+    print(pvals[i])
+    
+  }
+    idx_min_p <- which.min(pvals)
+    min_p_name <-names(pvals)[idx_min_p]
+    min_p <- pvals[idx_min_p]
+    print(pvals)
+    
+  if(min_p < .05 && length(x)>=1){
+      #print(x)
+      x<- x[-idx_min_p]
+      #print(x)
+      x_final <- paste(min_p_name,x_final,sep="+")
+      print(x_final)
+      pvals <- vector()
+      next
+  }
+} 
+break
+}
+print(x_final)
+
+
+
+```
+
+
+
+```{r}
+library(car)
+
+
+df<-data.frame(mtcars)
+y<-names(df)[1]
+x<-names(df)[2:length(df)]
+pvals<- vector()
+
+
+for(i in x){
+    formula <- paste(i,sep="+")
+    formula <- paste(y,"~drat+carb+gear+",formula,-1)
+    model<- lm(formula = formula,data=df)
+    print(coef(summary(model))[,4])
+}
+
+
+```
+
+
+```{r}
+library(car)
+
+
+df<-data.frame(mtcars)
+y<-names(df)[1]
+x<-names(df)[2:length(df)]
+pvals<- vector()
+model<-lm(mpg~-1,data=df)
+print(summary(model))
+
+
+```
+
+
+```{r}
+
+```
+
